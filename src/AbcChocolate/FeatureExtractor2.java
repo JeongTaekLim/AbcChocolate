@@ -196,6 +196,7 @@ public class FeatureExtractor2 {
 		// 좌측
 		for (int i = 0; i < LfftFeatures.size(); i++) {
 			double[] fftFeature = LfftFeatures.get(i);
+			
 			// 22050Hz가 256개의 점에 대응되므로 1개의 점에 약 86Hz가 할당된다. -10을 해주는 이유는 17kHz -
 			// 86*10Hz부터 svm벡터로 삽입하기 위함이다.
 			int startPos = 0, endPos = 0;
@@ -217,6 +218,7 @@ public class FeatureExtractor2 {
 				endPos = arrTargetFreqSamplePos[FREQ_20] + 10;
 				break;
 			}
+			normalize(fftFeature, startPos, endPos);
 			for (int j = startPos; j < endPos; j++) {
 				svmFeature = svmFeature + Integer.toString(prefix) + ":" + Double.toString(fftFeature[j]) + " ";
 				prefix++;
@@ -226,8 +228,8 @@ public class FeatureExtractor2 {
 		// 우측
 		for (int i = 0; i < RfftFeatures.size(); i++) {
 			double[] fftFeature = RfftFeatures.get(i);
-			// 22050Hz가 256개의 점에 대응되므로 1개의 점에 약 86Hz가 할당된다. -6을 해주는 이유는 17kHz -
-			// 86*6Hz부터 svm벡터로 삽입하기 위함이다.
+			// 22050Hz가 256개의 점에 대응되므로 1개의 점에 약 86Hz가 할당된다. -10을 해주는 이유는 17kHz -
+			// 86*10Hz부터 svm벡터로 삽입하기 위함이다.
 			int startPos = 0, endPos = 0;
 			switch (i) {
 			case FREQ_12:
@@ -247,6 +249,7 @@ public class FeatureExtractor2 {
 				endPos = arrTargetFreqSamplePos[FREQ_20] + 10;
 				break;
 			}
+			normalize(fftFeature, startPos, endPos);
 			for (int j = startPos; j < endPos; j++) {
 				svmFeature = svmFeature + Integer.toString(prefix) + ":" + Double.toString(fftFeature[j]) + " ";
 				prefix++;
@@ -361,6 +364,21 @@ public class FeatureExtractor2 {
 		}
 		System.out.println("FFT count: " + fftcnt);
 		return maxIdx;
+	}
+	public void normalize(double[] input, int startIdx, int endIdx){
+		int maxIdx=0;
+		double maxValue=0;
+		
+		for(int i=startIdx;i<endIdx;i++){
+			input[i] = input[i] / WINDOW_SIZE;
+		}
+		
+		maxIdx = getMaxIdx(input, startIdx, endIdx);
+		maxValue = input[maxIdx];
+		for(int i=startIdx;i<endIdx;i++){
+			input[i] = input[i] / maxValue;
+		}
+		return;
 	}
 
 	// sync 이후 소리 최대값을 나타내는 점을 잡아낸다.
