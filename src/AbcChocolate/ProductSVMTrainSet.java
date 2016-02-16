@@ -114,7 +114,7 @@ public class ProductSVMTrainSet {
 				String data = fe.getSvmFeature(2);
 				stringAppend(data);
 			}
-			catch(IOException e) {
+			catch(IOException | ExtractException e) {
 				e.printStackTrace();
 			}
 		}
